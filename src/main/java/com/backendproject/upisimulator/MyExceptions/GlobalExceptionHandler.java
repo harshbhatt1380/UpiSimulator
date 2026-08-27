@@ -11,6 +11,13 @@ import com.backendproject.upisimulator.dto.ResponseDTO.ErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler 
 {
+    @ExceptionHandler(value=InvalidCredentialException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleInvalidCredential(InvalidCredentialException ex)
+    {
+        return new ErrorResponse(false, ex.getMessage());
+    }
+    
     @ExceptionHandler(value=UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(UserNotFoundException ex)

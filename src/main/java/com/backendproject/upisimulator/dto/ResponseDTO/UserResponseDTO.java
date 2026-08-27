@@ -2,6 +2,8 @@ package com.backendproject.upisimulator.dto.ResponseDTO;
 
 import java.time.LocalDateTime;
 
+import com.backendproject.upisimulator.enumFolder.Role;
+
 public class UserResponseDTO 
 {
     private final String message;
@@ -10,15 +12,22 @@ public class UserResponseDTO
     private final String name;
     private final String email;
     private final String contactNo;
+    private final Role role;
 
-    public UserResponseDTO(boolean success,String message,LocalDateTime createdAt,String name,String email,String contactNo)
+    public UserResponseDTO(boolean success,String message,Role role,LocalDateTime createdAt,String name,String email,String contactNo)
     {
+        this.role=role;
         this.success=success;
         this.message=message;
         this.createdAt=createdAt;
         this.name=name;
         this.contactNo=contactNo;
         this.email=email;
+    }
+
+    public Role getRole()
+    {
+        return role;
     }
 
     public String getEmail()
