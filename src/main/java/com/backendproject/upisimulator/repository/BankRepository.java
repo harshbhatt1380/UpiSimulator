@@ -6,5 +6,5 @@ import com.backendproject.upisimulator.entity.Bank;
 
 public interface BankRepository extends JpaRepository<Bank,Integer>
 {
-
+    Bank findByName(String bank);
 } 

@@ -2,6 +2,8 @@ package com.backendproject.upisimulator.entity;
 
 import java.math.BigDecimal;
 
+import com.backendproject.upisimulator.enumFolder.Status;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,19 +22,19 @@ public class BankAccount
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id",nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "bank_id")
+    @JoinColumn(name = "bank_id",nullable = false)
     private Bank bank;
 
     @Enumerated(EnumType.STRING)
-    private String status;
+    private Status status;
 
     private BigDecimal balance;
 
-    public BankAccount(User user,Bank bank,String status,BigDecimal balance)
+    public BankAccount(User user,Bank bank,Status status,BigDecimal balance)
     {
         this.user=user;
         this.bank=bank;
@@ -55,7 +57,7 @@ public class BankAccount
         this.bank=bank;
     }
 
-    public void setStatus(String status)
+    public void setStatus(Status status)
     {
         this.status=status;
     }
@@ -70,7 +72,7 @@ public class BankAccount
         return bank;
     }
 
-    public String getStatus()
+    public Status getStatus()
     {
         return status;
     }
