@@ -16,4 +16,19 @@ public class BankResponseListDTO
         this.message=message;
         this.bankList=bankList;
     }
+
+    public boolean isSuccess()
+    {
+        return success;
+    }
+
+    public String getMessage()
+    {
+        return message;
+    }
+
+    public List<Bank> getBankList()
+    {
+        return bankList;
+    }
 }

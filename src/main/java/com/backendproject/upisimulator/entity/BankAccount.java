@@ -34,12 +34,12 @@ public class BankAccount
 
     private BigDecimal balance;
 
-    public BankAccount(User user,Bank bank,Status status,BigDecimal balance)
+    public BankAccount(User user,Bank bank)
     {
         this.user=user;
         this.bank=bank;
-        this.status=status;
-        this.balance=balance;
+        this.status=Status.ACTIVE;
+        this.balance=BigDecimal.ZERO;
     }
 
     protected BankAccount()

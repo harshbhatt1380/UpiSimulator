@@ -41,10 +41,17 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(value=MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMthodArgumentNotValid(MethodArgumentNotValidException ex)
+    public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException ex)
     {
         String fieldName = ex.getBindingResult().getFieldError().getField();
         String errorMessage = ex.getBindingResult().getAllErrors().getFirst().getDefaultMessage();
         return new ErrorResponse(false, fieldName+" : "+errorMessage);
+    }
+
+    @ExceptionHandler(value=BankNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBankNotFound(BankNotFoundException ex)
+    {
+        return new ErrorResponse(false, ex.getMessage());
     }
 }
