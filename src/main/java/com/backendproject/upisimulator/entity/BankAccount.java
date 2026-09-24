@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 
 @Entity
@@ -29,6 +30,9 @@ public class BankAccount
     @JoinColumn(name = "bank_id",nullable = false)
     private Bank bank;
 
+    @OneToOne(mappedBy = "bankAccount")
+    private Upi upi;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 
@@ -45,6 +49,21 @@ public class BankAccount
     protected BankAccount()
     {
 
+    }
+
+    public void credit(BigDecimal amount)
+    {
+        balance=this.balance.add(amount);
+    }
+
+    public void debit(BigDecimal amount)
+    {
+        balance=this.balance.subtract(amount);
+    }
+
+    public void setUpi(Upi upi)
+    {
+        this.upi=upi;
     }
 
     public void setUser(User user)
@@ -85,6 +104,11 @@ public class BankAccount
     public BigDecimal getBalance()
     {
         return balance;
+    }
+
+    public Upi getUpi()
+    {
+        return upi;
     }
 }
 

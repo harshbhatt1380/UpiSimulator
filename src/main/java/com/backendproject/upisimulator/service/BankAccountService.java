@@ -1,8 +1,10 @@
 package com.backendproject.upisimulator.service;
 
+import com.backendproject.upisimulator.entity.Upi;
 import com.backendproject.upisimulator.entity.User;
 import com.backendproject.upisimulator.repository.BankAccountRepository;
 import com.backendproject.upisimulator.repository.BankRepository;
+import com.backendproject.upisimulator.repository.UpiRepository;
 import com.backendproject.upisimulator.repository.UserRepository;
 
 import org.springframework.security.core.Authentication;
@@ -26,9 +28,11 @@ public class BankAccountService
     private final BankAccountRepository bankAccountRepository;
     private final BankRepository bankRepository;
     private final UserRepository userRepository;
+    private final UpiRepository upiRepository;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository,BankRepository bankRepository,UserRepository userRepository)
+    public BankAccountService(UpiRepository upiRepository,BankAccountRepository bankAccountRepository,BankRepository bankRepository,UserRepository userRepository)
     {
+        this.upiRepository=upiRepository;
         this.bankAccountRepository=bankAccountRepository;
         this.bankRepository=bankRepository;
         this.userRepository=userRepository;
@@ -53,7 +57,10 @@ public class BankAccountService
             else
             {
                 BankAccount client = new BankAccount(user, bank);
-                bankAccountRepository.save(client);
+                client= bankAccountRepository.save(client);
+                Upi upi = new Upi(client);
+                upiRepository.save(upi);
+                client.setUpi(upi);
                 return new BankAccountResponseDTO(client.getId(),client.getUser().getName(),client.getStatus(),client.getBalance(),client.getBank().getName());
             }
         }
