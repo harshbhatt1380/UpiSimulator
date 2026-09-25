@@ -8,5 +8,5 @@ import com.backendproject.upisimulator.entity.Transaction;
 
 public interface TransactionRepository extends JpaRepository<Transaction,Integer>
 {
-   Optional<Transaction> findByIdempotencyKey(String idempotencyKey);     
+   Optional<Transaction> findBySenderIdAndIdempotencyKey(Integer upiId,String idempotencyKey);     
 }

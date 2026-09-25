@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import com.backendproject.upisimulator.enumFolder.TStatus;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,8 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
-@Entity 
+@Entity
+@Table(uniqueConstraints = {@UniqueConstraint (columnNames = {"idempotencyKey","sender_upi_id"})}) 
 public class Transaction 
 {
     @Id 
@@ -38,7 +40,7 @@ public class Transaction
     @Enumerated(EnumType.STRING)
     private TStatus status;
 
-    @Column(unique = true,nullable = false)
+
     private String idempotencyKey;
 
     public Transaction(Upi sender,Upi receiver,BigDecimal amount,String idempotencyKey)
@@ -84,6 +86,11 @@ public class Transaction
     public void setCompletedAt(LocalDateTime completedAt)
     {
         this.completedAt=completedAt;
+    }
+
+    public Integer getId()
+    {
+        return id;
     }
 
     public Upi getSender()

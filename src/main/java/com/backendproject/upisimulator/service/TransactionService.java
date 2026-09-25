@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.backendproject.upisimulator.MyExceptions.InvalidCredentialException;
+import com.backendproject.upisimulator.dto.ResponseDTO.TransactionResponseDTO;
 import com.backendproject.upisimulator.entity.BankAccount;
 import com.backendproject.upisimulator.entity.Transaction;
 import com.backendproject.upisimulator.entity.Upi;
@@ -35,7 +36,7 @@ public class TransactionService
     }
     
     @Transactional 
-    public void payment(String senderUpiAddress,String receiverUpiAddress,BigDecimal amount,String idempotencyKey)
+    public TransactionResponseDTO payment(String senderUpiAddress,String receiverUpiAddress,BigDecimal amount,String idempotencyKey)
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -63,6 +64,11 @@ public class TransactionService
                     {
                         throw new InvalidCredentialException("Receiver Bank Account is blocked, thus cannot proceed to make payment, kindly re-activate this account or use another bank account");
                     }
+                    else if(transactionRepository.findBySenderIdAndIdempotencyKey(senderUpi.getId(),idempotencyKey).isPresent())
+                    {
+                        Transaction transaction = transactionRepository.findBySenderIdAndIdempotencyKey(senderUpi.getId(),idempotencyKey).get();
+                        return new TransactionResponseDTO("Idempotency Key already existed, thus here is the transaction report",transaction.getId(), transaction.getSender().getUpiAddress(), transaction.getReceiver().getUpiAddress(), transaction.getAmount(), transaction.getCreatedAt(), transaction.getCompletedAt(), transaction.getStatus());
+                    }
                     else if(amount.compareTo(BigDecimal.ZERO)<1)
                     {
                         throw new InvalidCredentialException("Transaction amount cannot be less than or equal to 0,thus transaction failed");
@@ -80,6 +86,8 @@ public class TransactionService
                         receiverBankAccount.credit(amount);
                         transaction.setStatus(TStatus.SUCCESS);
                         transaction.setCompletedAt(LocalDateTime.now());
+                        return new TransactionResponseDTO("Transaction completed successfully",transaction.getId(), transaction.getSender().getUpiAddress(), transaction.getReceiver().getUpiAddress(), transaction.getAmount(), transaction.getCreatedAt(), transaction.getCompletedAt(), transaction.getStatus());
+                        
                     }
                 }
                 else
