@@ -2,12 +2,16 @@ package com.backendproject.upisimulator.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.backendproject.upisimulator.MyExceptions.InvalidCredentialException;
+import com.backendproject.upisimulator.dto.ResponseDTO.TransactionDetailDTO;
+import com.backendproject.upisimulator.dto.ResponseDTO.TransactionHistoryResponseListDTO;
 import com.backendproject.upisimulator.dto.ResponseDTO.TransactionResponseDTO;
 import com.backendproject.upisimulator.entity.BankAccount;
 import com.backendproject.upisimulator.entity.Transaction;
@@ -99,6 +103,27 @@ public class TransactionService
         else
         {
             throw new InvalidCredentialException("Invalid Sender Upi address thus transaction failed, please check the provided Upi address again");
+        }
+    }
+    public TransactionHistoryResponseListDTO transactionHistory()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User authUser = userRepository.findByEmail(email);
+        if(transactionRepository.findTransactionsByUserId(authUser.getId())!=null)
+        {
+            List<Transaction> transactionList=transactionRepository.findTransactionsByUserId(authUser.getId());
+            ArrayList<TransactionDetailDTO> response = new ArrayList<>();
+            for(Transaction item : transactionList)
+            {
+
+                response.add(new TransactionDetailDTO(item.getId(),item.getSender().getBankAccount().getUser().getName() ,item.getReceiver().getBankAccount().getUser().getName(),item.getAmount() ,item.getCreatedAt() ,item.getCompletedAt() ,item.getStatus()));
+            }
+            return new TransactionHistoryResponseListDTO ("Transaction history fetched successfully", true, response); 
+        }
+        else
+        {
+            return new TransactionHistoryResponseListDTO("No transaction history exists", true, null);
         }
     }
 }

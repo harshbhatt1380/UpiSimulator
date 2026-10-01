@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backendproject.upisimulator.dto.ResponseDTO.TransactionHistoryResponseListDTO;
 import com.backendproject.upisimulator.dto.ResponseDTO.TransactionResponseDTO;
 import com.backendproject.upisimulator.service.TransactionService;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 @RequestMapping("/transactions") 
@@ -27,5 +30,11 @@ public class TransactionController
     {
         TransactionResponseDTO response = transactionService.payment(senderUpiAddress, receiverUpiAddress, amount, idempotencyKey);
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }    
+    } 
+    @GetMapping("/transactionHistory")
+    public ResponseEntity<TransactionHistoryResponseListDTO> getMethodName() 
+    {
+        TransactionHistoryResponseListDTO response = transactionService.transactionHistory();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
