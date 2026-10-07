@@ -7,18 +7,22 @@ import com.backendproject.upisimulator.repository.BankRepository;
 import com.backendproject.upisimulator.repository.UpiRepository;
 import com.backendproject.upisimulator.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.backendproject.upisimulator.MyExceptions.BankNotFoundException;
 import com.backendproject.upisimulator.MyExceptions.InvalidCredentialException;
+import com.backendproject.upisimulator.MyExceptions.UnauthorizedException;
 import com.backendproject.upisimulator.MyExceptions.UserNotFoundException;
 import com.backendproject.upisimulator.dto.ResponseDTO.BankAccountResponseDTO;
 import com.backendproject.upisimulator.dto.ResponseDTO.BankAccountResponseListDTO;
 import com.backendproject.upisimulator.entity.Bank;
 import com.backendproject.upisimulator.entity.BankAccount;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,6 +103,80 @@ public class BankAccountService
         {
             BankAccount bankAccount = bankAccountRepository.findByIdAndUserEmail(id, email).get();
             return new BankAccountResponseDTO(bankAccount.getId(), bankAccount.getUser().getEmail(), bankAccount.getStatus(), bankAccount.getBalance(), bankAccount.getBank().getName());
+        }
+    }
+
+    @Transactional 
+    public BankAccountResponseDTO credit(String upiAddress,BigDecimal amount)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User authUser = userRepository.findByEmail(email);
+        if(upiRepository.findByUpiAddress(upiAddress).isPresent())
+        {
+            Upi senderUpi = upiRepository.findByUpiAddress(upiAddress).get();
+            User user = senderUpi.getBankAccount().getUser();
+            if(!authUser.getId().equals(user.getId()))
+            {
+                throw new UnauthorizedException("You are not authorized to make changes to this account");
+            }
+            else
+            {
+                BankAccount bankAccount = senderUpi.getBankAccount();
+                if(amount.compareTo(BigDecimal.ZERO)<1)
+                {
+                    throw new InvalidCredentialException("Amount cannot be less than or equal to zero");
+                }
+                else
+                {
+                    bankAccount.credit(amount);
+                    return new BankAccountResponseDTO(bankAccount.getId(), bankAccount.getUser().getName(), bankAccount.getStatus(), bankAccount.getBalance(),bankAccount.getBank().getName());
+                }
+                
+            }
+        }
+        else
+        {
+            throw new InvalidCredentialException("Upi address of sender/receiver cannot be empty, thus adding money to self account failed");
+        }
+    }
+
+    @Transactional 
+    public BankAccountResponseDTO debit(String upiAddress,BigDecimal amount)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User authUser = userRepository.findByEmail(email);
+        if(upiRepository.findByUpiAddress(upiAddress).isPresent())
+        {
+            Upi senderUpi = upiRepository.findByUpiAddress(upiAddress).get();
+            User user = senderUpi.getBankAccount().getUser();
+            if(!authUser.getId().equals(user.getId()))
+            {
+                throw new UnauthorizedException("You are not authorized to make changes to this account,thus action debiting from self account failed");
+            }
+            else
+            {
+                BankAccount bankAccount = senderUpi.getBankAccount();
+                if(amount.compareTo(BigDecimal.ZERO)<1)
+                {
+                    throw new InvalidCredentialException("Amount cannot be less than or equal to zero");
+                }
+                else if(bankAccount.getBalance().compareTo(amount)<0)
+                {
+                    throw new InvalidCredentialException("Insufficient funds thus debit failed");
+                }
+                else
+                {
+                    bankAccount.debit(amount);
+                    return new BankAccountResponseDTO(bankAccount.getId(), bankAccount.getUser().getName(), bankAccount.getStatus(), bankAccount.getBalance(),bankAccount.getBank().getName());
+                }
+                
+            }
+        }
+        else
+        {
+            throw new InvalidCredentialException("Upi address of sender/receiver cannot be empty, thus debiting money from self account failed");
         }
     }
 }  

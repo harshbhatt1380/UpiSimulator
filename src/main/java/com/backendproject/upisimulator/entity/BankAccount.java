@@ -53,12 +53,12 @@ public class BankAccount
 
     public void credit(BigDecimal amount)
     {
-        balance=this.balance.add(amount);
+        this.balance=this.balance.add(amount);
     }
 
     public void debit(BigDecimal amount)
     {
-        balance=this.balance.subtract(amount);
+        this.balance=this.balance.subtract(amount);
     }
 
     public void setUpi(Upi upi)

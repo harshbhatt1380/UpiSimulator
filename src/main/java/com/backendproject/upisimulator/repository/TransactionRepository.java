@@ -1,8 +1,9 @@
 package com.backendproject.upisimulator.repository;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -11,7 +12,6 @@ import com.backendproject.upisimulator.entity.Transaction;
 public interface TransactionRepository extends JpaRepository<Transaction,Integer>
 {
    Optional<Transaction> findBySenderIdAndIdempotencyKey(Integer upiId,String idempotencyKey);
-   
    @Query("""
          SELECT t
          FROM Transaction t
@@ -19,5 +19,5 @@ public interface TransactionRepository extends JpaRepository<Transaction,Integer
             OR
                t.receiver.bankAccount.user.id = :userId
          """)
-         List<Transaction>findTransactionsByUserId(Integer userId);
+         Page<Transaction>findTransactionsByUserId(Integer userId,Pageable pageable);
 }

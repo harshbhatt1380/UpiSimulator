@@ -13,10 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 
 @RestController
 @RequestMapping("/bankAccount")
+@SecurityRequirement(name = "bearerAuth")
 public class BankAccountController 
 {
     private final BankAccountService bankAccountService;
@@ -32,6 +37,21 @@ public class BankAccountController
         BankAccountResponseDTO response = bankAccountService.registerBankAccount(bankName);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @PostMapping("/credit")
+    public ResponseEntity<BankAccountResponseDTO> creditBankAccount(@RequestParam String upiAddress,@RequestParam BigDecimal amount) 
+    {
+        BankAccountResponseDTO response = bankAccountService.credit(upiAddress, amount);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/debit")
+    public ResponseEntity<BankAccountResponseDTO> debitBankAccount(@RequestParam String upiAddress,@RequestParam BigDecimal amount) 
+    {
+        BankAccountResponseDTO response = bankAccountService.debit(upiAddress, amount);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
 
     @GetMapping("/getBankAccountList")
     public ResponseEntity<List<BankAccountResponseListDTO>> getBankAccountList() 
